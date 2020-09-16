@@ -17,7 +17,6 @@ class UserController extends ApiController
     {
         $users = User::all();
 
-        // return response()->json($users, 200);
         return $this->showAll($users);
     }
 
@@ -56,11 +55,8 @@ class UserController extends ApiController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(User $user)
     {
-        $user = User::findOrFail($id);
-
-        // return response()->json($user, 200);
         return $this->showOne($user);
     }
 
@@ -71,10 +67,8 @@ class UserController extends ApiController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        $user = User::findOrFail($id);
-
         $rules = [
             'email' => 'email|unique:users,email,' . $user->id,
             'password' => 'min:6|confirmed',
@@ -99,20 +93,17 @@ class UserController extends ApiController
 
         if ($request->has('admin')) {
             if (!$user->isVerified()) {
-                // return response()->json(['error' => 'Only verified users can modify the admin field', 'code' => 409], 409);
                 return $this->errorResponse('Only verified users can modify the admin field', 409);
             }
             $user->admin = $request->admin;
         }
 
         if (!$user->isDirty()) {
-            // return response()->json(['error' => 'You need to specify a different value to update', 'code' => 422], 422);
             return $this->errorResponse('You need to specify a different value to update', 422);
         }
 
         $user->save();
 
-        // return response()->json(['data' => $user], 200);
         return $this->showOne($user);
 
     }
@@ -123,13 +114,10 @@ class UserController extends ApiController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(User $user)
     {
-        $user = User::findOrFail($id);
-
         $user->delete();
 
-        // return response()->json(['data' => $user], 200);
         return $this->showOne($user);
     }
 }
