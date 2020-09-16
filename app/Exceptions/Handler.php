@@ -5,12 +5,15 @@ namespace App\Exceptions;
 use Exception;
 use Throwable;
 use App\Traits\ApiResponser;
-use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -79,6 +82,12 @@ class Handler extends ExceptionHandler
             return $this->unauthenticated($request, $e);
         } elseif ($e instanceof AuthorizationException) {
             return $this->errorResponse($e->getMessage(), 403);
+        } elseif ($e instanceof NotFoundHttpException) {
+            return $this->errorResponse('The specified URL cannot be found', 404);
+        } elseif ($e instanceof HttpException) {
+            return $this->errorResponse($e->getMessage(), $e->getStatusCode());
+        } elseif ($e instanceof MethodNotAllowedHttpException) {
+            return $this->errorResponse('The specified method for the request is invalid', 405);
         } elseif ($e instanceof ValidationException) {
             return $this->convertValidationExceptionToResponse($e, $request);
         } elseif ($e instanceof ModelNotFoundException) {
