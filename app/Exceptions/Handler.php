@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Throwable;
 use App\Traits\ApiResponser;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
@@ -76,6 +77,8 @@ class Handler extends ExceptionHandler
             return $e->getResponse();
         } elseif ($e instanceof AuthenticationException) {
             return $this->unauthenticated($request, $e);
+        } elseif ($e instanceof AuthorizationException) {
+            return $this->errorResponse($e->getMessage(), 403);
         } elseif ($e instanceof ValidationException) {
             return $this->convertValidationExceptionToResponse($e, $request);
         } elseif ($e instanceof ModelNotFoundException) {
@@ -97,15 +100,23 @@ class Handler extends ExceptionHandler
      */
     protected function convertValidationExceptionToResponse(ValidationException $e, $request)
     {
-        // if ($e->response) {
-        //     return $e->response;
-        // }
-
-        // return $request->expectsJson()
-        //             ? $this->invalidJson($request, $e)
-        //             : $this->invalid($request, $e);
         $errors = $e->validator->errors()->getMessages();
 
         return $this->errorResponse($errors, 422);
+    }
+
+        /**
+     * Convert an authentication exception into a response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Auth\AuthenticationException  $exception
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        // return $request->expectsJson()
+        //             ? response()->json(['message' => $exception->getMessage()], 401)
+        //             : redirect()->guest($exception->redirectTo() ?? route('login'));
+        return $this->errorResponse('Unauthenticated.', 401);
     }
 }
