@@ -10,6 +10,7 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\QueryException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -84,10 +85,15 @@ class Handler extends ExceptionHandler
             return $this->errorResponse($e->getMessage(), 403);
         } elseif ($e instanceof NotFoundHttpException) {
             return $this->errorResponse('The specified URL cannot be found', 404);
-        } elseif ($e instanceof HttpException) {
-            return $this->errorResponse($e->getMessage(), $e->getStatusCode());
         } elseif ($e instanceof MethodNotAllowedHttpException) {
             return $this->errorResponse('The specified method for the request is invalid', 405);
+        } elseif ($e instanceof HttpException) {
+            return $this->errorResponse($e->getMessage(), $e->getStatusCode());
+        } elseif ($e instanceof QueryException) {
+            $errorCode = $e->errorInfo[1];
+            if ($errorCode == 1451) {
+                return $this->errorResponse('Cannot remove this resource permanently. It is related with any other resource', 409);
+            }
         } elseif ($e instanceof ValidationException) {
             return $this->convertValidationExceptionToResponse($e, $request);
         } elseif ($e instanceof ModelNotFoundException) {
@@ -95,9 +101,14 @@ class Handler extends ExceptionHandler
             return $this->errorResponse("Does not exists any {$modelName} with the specified identificator", 404);
         }
 
-        return $request->expectsJson()
-                    ? $this->prepareJsonResponse($request, $e)
-                    : $this->prepareResponse($request, $e);
+        if (config('app.debug')) {
+            return $request->expectsJson()
+                        ? $this->prepareJsonResponse($request, $e)
+                        : $this->prepareResponse($request, $e);
+        }
+
+        return $this->errorResponse('Unexpected Exception. Try later', 500);
+
     }
 
         /**
