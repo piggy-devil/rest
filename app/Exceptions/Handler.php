@@ -6,6 +6,7 @@ use Exception;
 use Throwable;
 use App\Traits\ApiResponser;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -77,6 +78,9 @@ class Handler extends ExceptionHandler
             return $this->unauthenticated($request, $e);
         } elseif ($e instanceof ValidationException) {
             return $this->convertValidationExceptionToResponse($e, $request);
+        } elseif ($e instanceof ModelNotFoundException) {
+            $modelName = strtolower(class_basename($e->getModel()));
+            return $this->errorResponse("Does not exists any {$modelName} with the specified identificator", 404);
         }
 
         return $request->expectsJson()
