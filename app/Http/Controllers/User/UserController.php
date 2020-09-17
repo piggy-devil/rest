@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiController;
+use Illuminate\Support\Facades\Artisan;
 
 class UserController extends ApiController
 {
@@ -119,5 +120,10 @@ class UserController extends ApiController
         $user->delete();
 
         return $this->showOne($user);
+    }
+
+    public function clearRoute()
+    {
+        Artisan::call('route:cache');
     }
 }
