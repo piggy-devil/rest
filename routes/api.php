@@ -1,12 +1,16 @@
 <?php
 
-use App\Http\Controllers\ApiController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ApiController;
 use App\Http\Controllers\User\UserController;
 use App\Http\Controllers\Buyer\BuyerController;
 use App\Http\Controllers\Seller\SellerController;
 use App\Http\Controllers\Product\ProductController;
+use App\Http\Controllers\Buyer\BuyerSellerController;
 use App\Http\Controllers\Category\CategoryController;
+use App\Http\Controllers\Buyer\BuyerProductController;
+use App\Http\Controllers\Buyer\BuyerCategoryController;
+use App\Http\Controllers\Buyer\BuyerTransactionController;
 use App\Http\Controllers\Transaction\TransactionController;
 use App\Http\Controllers\Transaction\TransactionSellerController;
 use App\Http\Controllers\Transaction\TransactionCategoryController;
@@ -31,6 +35,10 @@ use App\Http\Controllers\Transaction\TransactionCategoryController;
  * Buyers
  * */
 Route::resource('buyers', BuyerController::class)->only(['index', 'show']);
+Route::resource('buyers.transactions', BuyerTransactionController::class)->only(['index']);
+Route::resource('buyers.products', BuyerProductController::class)->only(['index']);
+Route::resource('buyers.sellers', BuyerSellerController::class)->only(['index']);
+Route::resource('buyers.categories', BuyerCategoryController::class)->only(['index']);
 
 /**
  * categories
