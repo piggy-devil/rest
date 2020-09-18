@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 class SignatureMiddleware
 {
+    // php artisan make:middleware SignatureMiddleware
+    
     /**
      * Handle an incoming request.
      *
