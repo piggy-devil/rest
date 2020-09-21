@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Buyer;
 use App\Models\Product;
+use App\Transformers\TransacTransformer;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,7 @@ class Transaction extends Model
 {
     use HasFactory, SoftDeletes;
 
+    public $transformer = TransacTransformer::class;
     protected $dates = ['deleted_at'];
 
     protected $fillable = [
