@@ -1,7 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,3 +16,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Auth::routes();
+
+Route::get('/home/my-tokens', '\App\Http\Controllers\HomeController@getTokens')->name('personal-tokens');
+Route::get('/home/my-clients', '\App\Http\Controllers\HomeController@getClients')->name('personal-clients');
+Route::get('/home/authorized-clients', '\App\Http\Controllers\HomeController@getAuthorizedClients')->name('authorized-clients');
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
